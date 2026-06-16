@@ -104,31 +104,62 @@ export function GwalaExperience() {
     window.addEventListener("resize", onResize);
 
     let last = performance.now();
+    let elapsed = 0;
     const tick = (now: number) => {
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
+      elapsed += dt;
 
-      // physics for roses
-      const g = 22;
+      // physics for roses — gentler gravity + air drag + wobble
+      const g = 13.5;
       rosesRef.current.forEach((rose) => {
         const ud = rose.userData as {
           velocity: THREE.Vector3;
           rotSpeed: THREE.Vector3;
+          wobble: number;
+          wobbleAxis: THREE.Vector3;
           landed?: boolean;
+          settleT?: number;
         };
         if (ud.landed) return;
+
+        // gravity
         ud.velocity.y -= g * dt;
+
+        // quadratic-ish air drag (stronger when faster) — creates that floaty tumble
+        const speed = ud.velocity.length();
+        const drag = 0.6 + speed * 0.04;
+        ud.velocity.multiplyScalar(Math.max(0, 1 - drag * dt));
+        // re-apply gravity portion lost to drag for vertical realism
+        ud.velocity.y -= g * dt * 0.35;
+
+        // subtle horizontal sway like leaves catching air
+        const sway = Math.sin(elapsed * 1.3 + ud.wobble) * 0.6 * dt;
+        ud.velocity.x += sway * ud.wobbleAxis.x;
+        ud.velocity.z += sway * ud.wobbleAxis.z;
+
         rose.position.addScaledVector(ud.velocity, dt);
+
+        // angular damping — tumble slows as drag bleeds energy
+        ud.rotSpeed.multiplyScalar(Math.max(0, 1 - 0.35 * dt));
         rose.rotation.x += ud.rotSpeed.x * dt;
         rose.rotation.y += ud.rotSpeed.y * dt;
         rose.rotation.z += ud.rotSpeed.z * dt;
-        ud.velocity.x *= 0.99;
-        ud.velocity.z *= 0.99;
+
         if (rose.position.y < -2.7) {
+          // soft settle — small bounce + slow rotational rest instead of hard stop
+          if (!ud.settleT) ud.settleT = 0;
+          ud.settleT += dt;
           rose.position.y = -2.7;
-          ud.velocity.set(0, 0, 0);
-          ud.rotSpeed.set(0, 0, 0);
-          ud.landed = true;
+          ud.velocity.y = Math.max(0, -ud.velocity.y * 0.15);
+          ud.velocity.x *= 0.4;
+          ud.velocity.z *= 0.4;
+          ud.rotSpeed.multiplyScalar(0.7);
+          if (ud.settleT > 0.6 || ud.rotSpeed.length() < 0.05) {
+            ud.velocity.set(0, 0, 0);
+            ud.rotSpeed.set(0, 0, 0);
+            ud.landed = true;
+          }
         }
       });
 
@@ -136,6 +167,7 @@ export function GwalaExperience() {
       rafRef.current = requestAnimationFrame(tick);
     };
     rafRef.current = requestAnimationFrame(tick);
+
 
     return () => {
       window.removeEventListener("resize", onResize);
@@ -198,26 +230,58 @@ export function GwalaExperience() {
     if (!scene) return;
     rosesRef.current.forEach((r) => scene.remove(r));
     rosesRef.current = [];
-    const count = 26;
+    const count = 55;
     for (let i = 0; i < count; i++) {
       const rose = makeRose();
+
+      // varied scale — a bouquet has different blooms
+      const s = 0.75 + Math.random() * 0.55;
+      rose.scale.setScalar(s);
+
+      // start tightly clustered like a held bouquet
+      const clusterR = 0.6 + Math.random() * 0.7;
+      const clusterA = Math.random() * Math.PI * 2;
       rose.position.set(
-        (Math.random() - 0.5) * 1.6,
-        2 + Math.random() * 1.2,
-        (Math.random() - 0.5) * 1.6
+        Math.cos(clusterA) * clusterR,
+        1.4 + Math.random() * 1.2,
+        Math.sin(clusterA) * clusterR
       );
-      const ang = (i / count) * Math.PI * 2 + Math.random() * 0.6;
-      const speed = 10 + Math.random() * 6;
-      (rose.userData as Record<string, unknown>).velocity = new THREE.Vector3(
-        Math.cos(ang) * (3 + Math.random() * 4),
-        speed,
-        Math.sin(ang) * (3 + Math.random() * 4)
+      // pre-tilt each stem like it was in a hand
+      rose.rotation.set(
+        (Math.random() - 0.5) * 0.6,
+        Math.random() * Math.PI * 2,
+        (Math.random() - 0.5) * 0.6
       );
-      (rose.userData as Record<string, unknown>).rotSpeed = new THREE.Vector3(
-        (Math.random() - 0.5) * 8,
-        (Math.random() - 0.5) * 10,
-        (Math.random() - 0.5) * 8
+
+      // outward + upward throw — fan-shaped, biased upward
+      const ang = clusterA + (Math.random() - 0.5) * 0.9;
+      const outward = 2.5 + Math.random() * 5.5;
+      const up = 11 + Math.random() * 5;
+      const ud = rose.userData as Record<string, unknown>;
+      ud.velocity = new THREE.Vector3(
+        Math.cos(ang) * outward,
+        up,
+        Math.sin(ang) * outward
       );
+      // gentler, more varied tumble — heavier roses spin slower
+      const spin = (1 / s) * 4;
+      ud.rotSpeed = new THREE.Vector3(
+        (Math.random() - 0.5) * spin,
+        (Math.random() - 0.5) * spin * 1.3,
+        (Math.random() - 0.5) * spin
+      );
+      ud.wobble = Math.random() * Math.PI * 2;
+      ud.wobbleAxis = new THREE.Vector3(
+        Math.random() - 0.5,
+        0,
+        Math.random() - 0.5
+      ).normalize();
+
+      scene.add(rose);
+      rosesRef.current.push(rose);
+    }
+  }
+
       scene.add(rose);
       rosesRef.current.push(rose);
     }
