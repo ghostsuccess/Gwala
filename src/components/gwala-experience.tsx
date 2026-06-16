@@ -282,10 +282,7 @@ export function GwalaExperience() {
     }
   }
 
-      scene.add(rose);
-      rosesRef.current.push(rose);
-    }
-  }
+
 
   function openPanels() {
     const panels = panelsRef.current;
