@@ -378,7 +378,7 @@ function IntroOverlay({ onStart }: { onStart: () => void }) {
   return (
     <div className="absolute inset-0 z-10 flex animate-fade-in flex-col items-center justify-center px-6 text-center">
       <p className="mb-4 text-xs uppercase tracking-[0.4em] text-accent/80">
-        A small toast · est. 32
+        A small toast · for a friend
       </p>
       <h1 className="font-display text-4xl font-bold leading-[1.05] text-foreground sm:text-6xl md:text-7xl">
         I heard Gwala&apos;s
