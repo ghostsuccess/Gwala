@@ -1,12 +1,28 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import gsap from "gsap";
+import gwalaTrack from "@/assets/Gwala.mp3.asset.json";
 
 type Phase = "intro" | "roses" | "reveal" | "lyrics";
+
+// Lyric cues in seconds — lines only appear once the song's currentTime crosses `t`.
+// Tweak these to match the track precisely.
+type Cue = { t: number; text: string; accent?: string };
+const LYRIC_CUES: Cue[] = [
+  { t: 8, text: "I got a friend named Gwala" },
+  { t: 14, text: "Gwala is my friend" },
+  { t: 20, text: "Get up and dance,", accent: "Gwala." },
+  { t: 32, text: "Thirty-five looks good on you" },
+  { t: 42, text: "Still the realest in the room" },
+  { t: 54, text: "Get up and dance,", accent: "Gwala." },
+  { t: 72, text: "From your friend, always" },
+  { t: 88, text: "Happy birthday,", accent: "Gwala." },
+];
 
 export function GwalaExperience() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [phase, setPhase] = useState<Phase>("intro");
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Three.js handles
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -316,6 +332,18 @@ export function GwalaExperience() {
 
   function start() {
     if (phase !== "intro") return;
+    // Create + play audio on the user gesture so browsers allow it
+    if (!audioRef.current) {
+      const a = new Audio(gwalaTrack.url);
+      a.preload = "auto";
+      a.volume = 0.9;
+      audioRef.current = a;
+    }
+    audioRef.current.currentTime = 0;
+    audioRef.current.play().catch(() => {
+      /* visuals still play if audio is blocked */
+    });
+
     setPhase("roses");
     throwRoses();
     setTimeout(() => {
@@ -340,8 +368,8 @@ export function GwalaExperience() {
       {/* Intro */}
       {phase === "intro" && <IntroOverlay onStart={start} />}
 
-      {/* Lyrics */}
-      {phase === "lyrics" && <LyricsOverlay />}
+      {/* Lyrics — driven by audio currentTime */}
+      {phase === "lyrics" && <LyricsOverlay audio={audioRef.current} cues={LYRIC_CUES} />}
     </div>
   );
 }
@@ -376,44 +404,67 @@ function IntroOverlay({ onStart }: { onStart: () => void }) {
   );
 }
 
-function LyricsOverlay() {
-  const lines = [
-    "I got a friend named Gwala",
-    "Gwala is my friend",
-    "Get up and dance, Gwala",
-  ];
+function LyricsOverlay({
+  audio,
+  cues,
+}: {
+  audio: HTMLAudioElement | null;
+  cues: Cue[];
+}) {
+  const [activeIdx, setActiveIdx] = useState(-1);
+
+  useEffect(() => {
+    if (!audio) return;
+    let raf = 0;
+    const loop = () => {
+      const t = audio.currentTime;
+      let idx = -1;
+      for (let i = 0; i < cues.length; i++) {
+        if (t >= cues[i].t) idx = i;
+        else break;
+      }
+      setActiveIdx((prev) => (prev === idx ? prev : idx));
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, [audio, cues]);
+
+  const current = activeIdx >= 0 ? cues[activeIdx] : null;
+
   return (
     <div className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center px-6 text-center">
       <p
         className="mb-10 text-[0.7rem] uppercase tracking-[0.5em] text-accent opacity-0"
         style={{ animation: "fade-in 0.8s ease-out 0.2s forwards" }}
       >
-        Sing it with me
+        Sing it with him
       </p>
-      <div className="space-y-6">
-        {lines.map((l, i) => (
+
+      <div className="relative flex min-h-[8rem] items-center justify-center">
+        {current && (
           <h2
-            key={l}
-            className="font-display text-3xl font-bold leading-tight text-foreground opacity-0 sm:text-5xl md:text-6xl"
+            key={activeIdx}
+            className="font-display text-3xl font-bold leading-tight text-foreground sm:text-5xl md:text-6xl"
             style={{
-              animation: `fade-in 1.1s cubic-bezier(.2,.7,.2,1) ${0.6 + i * 0.7}s forwards`,
+              animation: "fade-in 0.6s cubic-bezier(.2,.7,.2,1) forwards",
               textShadow: "0 0 40px oklch(0.45 0.18 25 / 0.6)",
             }}
           >
-            {i === 2 ? (
+            {current.text}
+            {current.accent && (
               <>
-                Get up and dance,{" "}
-                <span className="italic text-accent">Gwala.</span>
+                {" "}
+                <span className="italic text-accent">{current.accent}</span>
               </>
-            ) : (
-              l
             )}
           </h2>
-        ))}
+        )}
       </div>
+
       <p
         className="pointer-events-auto mt-16 text-xs uppercase tracking-[0.4em] text-muted-foreground opacity-0"
-        style={{ animation: "fade-in 1s ease-out 3.5s forwards" }}
+        style={{ animation: "fade-in 1s ease-out 2s forwards" }}
       >
         Happy 35, friend.
       </p>
