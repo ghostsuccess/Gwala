@@ -16,7 +16,7 @@ const LYRIC_CUES: Cue[] = [
   { t: 42, text: "Still the realest in the room" },
   { t: 54, text: "Get up and dance,", accent: "Gwala." },
   { t: 72, text: "From your friend, always" },
-  { t: 88, text: "Happy birthday,", accent: "Gwala." },
+  { t: 88, text: "Here's to you,", accent: "Gwala." },
 ];
 
 export function GwalaExperience() {
