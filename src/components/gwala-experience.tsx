@@ -12,7 +12,7 @@ const LYRIC_CUES: Cue[] = [
   { t: 8, text: "I got a friend named Gwala" },
   { t: 14, text: "Gwala is my friend" },
   { t: 20, text: "Get up and dance,", accent: "Gwala." },
-  { t: 32, text: "Thirty-five looks good on you" },
+  { t: 32, text: "Thirty-two looks good on you" },
   { t: 42, text: "Still the realest in the room" },
   { t: 54, text: "Get up and dance,", accent: "Gwala." },
   { t: 72, text: "From your friend, always" },
@@ -378,7 +378,7 @@ function IntroOverlay({ onStart }: { onStart: () => void }) {
   return (
     <div className="absolute inset-0 z-10 flex animate-fade-in flex-col items-center justify-center px-6 text-center">
       <p className="mb-4 text-xs uppercase tracking-[0.4em] text-accent/80">
-        A small toast · est. 35
+        A small toast · est. 32
       </p>
       <h1 className="font-display text-4xl font-bold leading-[1.05] text-foreground sm:text-6xl md:text-7xl">
         I heard Gwala&apos;s
@@ -466,7 +466,7 @@ function LyricsOverlay({
         className="pointer-events-auto mt-16 text-xs uppercase tracking-[0.4em] text-muted-foreground opacity-0"
         style={{ animation: "fade-in 1s ease-out 2s forwards" }}
       >
-        Happy 35, friend.
+        Happy 32, friend.
       </p>
     </div>
   );
