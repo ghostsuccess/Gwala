@@ -404,7 +404,6 @@ function IntroOverlay({ onStart }: { onStart: () => void }) {
   );
 }
 
-type Cue = { t: number; text: string; accent?: string };
 function LyricsOverlay({
   audio,
   cues,
