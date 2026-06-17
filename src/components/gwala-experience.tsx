@@ -466,7 +466,7 @@ function LyricsOverlay({
         className="pointer-events-auto mt-16 text-xs uppercase tracking-[0.4em] text-muted-foreground opacity-0"
         style={{ animation: "fade-in 1s ease-out 2s forwards" }}
       >
-        Happy 32, friend.
+        To you, friend.
       </p>
     </div>
   );
