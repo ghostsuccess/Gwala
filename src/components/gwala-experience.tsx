@@ -11,12 +11,14 @@ type Cue = { t: number; text: string; accent?: string };
 const LYRIC_CUES: Cue[] = [
   { t: 8, text: "I got a friend named Gwala" },
   { t: 14, text: "Gwala is my friend" },
-  { t: 20, text: "Get up and dance,", accent: "Gwala." },
-  { t: 32, text: "Thirty-two looks good on you" },
-  { t: 42, text: "Still the realest in the room" },
-  { t: 54, text: "Get up and dance,", accent: "Gwala." },
-  { t: 72, text: "From your friend, always" },
-  { t: 88, text: "Here's to you,", accent: "Gwala." },
+  { t: 20, text: "Get up and dance", accent: "Gwala" },
+  { t: 24, text: "Get up and dance", accent: "Gwala" },
+  { t: 28, text: "Get up and dance", accent: "Gwala" },
+  { t: 32, text: "Gwala can sit down" },
+  { t: 42, text: "Get up and dance", accent: "Gwala" },
+  { t: 46, text: "Get up and dance", accent: "Gwala" },
+  { t: 50, text: "Get up and dance", accent: "Gwala" },
+  { t: 54, text: "Gwala can sit down" },
 ];
 
 export function GwalaExperience() {
