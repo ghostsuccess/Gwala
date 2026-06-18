@@ -9,16 +9,16 @@ type Phase = "intro" | "roses" | "reveal" | "lyrics";
 // Tweak these to match the track precisely.
 type Cue = { t: number; text: string; accent?: string };
 const LYRIC_CUES: Cue[] = [
-  { t: 8, text: "I got a friend named Gwala" },
-  { t: 14, text: "Gwala is my friend" },
-  { t: 20, text: "Get up and dance", accent: "Gwala" },
-  { t: 24, text: "Get up and dance", accent: "Gwala" },
-  { t: 28, text: "Get up and dance", accent: "Gwala" },
-  { t: 32, text: "Gwala can sit down" },
-  { t: 42, text: "Get up and dance", accent: "Gwala" },
-  { t: 46, text: "Get up and dance", accent: "Gwala" },
-  { t: 50, text: "Get up and dance", accent: "Gwala" },
-  { t: 54, text: "Gwala can sit down" },
+  { t: 4.0, text: "I got a friend named Gwala" },
+  { t: 7.0, text: "Gwala is my friend" },
+  { t: 10.0, text: "Get up and dance", accent: "Gwala" },
+  { t: 13.0, text: "Get up and dance", accent: "Gwala" },
+  { t: 16.0, text: "Get up and dance", accent: "Gwala" },
+  { t: 19.0, text: "Gwala can sit down" },
+  { t: 22.0, text: "Get up and dance", accent: "Gwala" },
+  { t: 25.0, text: "Get up and dance", accent: "Gwala" },
+  { t: 28.0, text: "Get up and dance", accent: "Gwala" },
+  { t: 31.0, text: "Gwala can sit down" },
 ];
 
 export function GwalaExperience() {
@@ -312,24 +312,24 @@ export function GwalaExperience() {
     panels.right.position.set(7, 5, 10);
 
     const tl = gsap.timeline();
-    // Panels swoop in fast then slide apart majestically
+    // Panels swoop in then slide apart — tightened so lyrics catch the first beat
     tl.to([panels.left.position, panels.right.position], {
       z: 0,
-      duration: 0.6,
+      duration: 0.35,
       ease: "power3.out",
     })
-      .to(camera.position, { z: 18, duration: 1.2, ease: "power2.inOut" }, "<")
+      .to(camera.position, { z: 18, duration: 0.8, ease: "power2.inOut" }, "<")
       .to(
         panels.left.position,
-        { x: -16, duration: 2.2, ease: "power3.inOut" },
-        "+=0.3"
+        { x: -16, duration: 1.1, ease: "power3.inOut" },
+        "+=0.05"
       )
       .to(
         panels.right.position,
-        { x: 16, duration: 2.2, ease: "power3.inOut" },
+        { x: 16, duration: 1.1, ease: "power3.inOut" },
         "<"
       )
-      .call(() => setPhase("lyrics"), [], "-=0.6");
+      .call(() => setPhase("lyrics"), [], "-=0.7");
   }
 
   function start() {
@@ -351,7 +351,7 @@ export function GwalaExperience() {
     setTimeout(() => {
       setPhase("reveal");
       openPanels();
-    }, 3200);
+    }, 1400);
   }
 
   return (
