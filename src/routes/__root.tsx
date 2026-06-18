@@ -77,12 +77,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Gwala — A Celebration" },
+      { title: "Gwala — A Dance" },
       { name: "description", content: "A little something for Gwala. Press play." },
-      { property: "og:title", content: "Gwala — A Celebration" },
+      { property: "og:title", content: "Gwala — A Dance" },
       { property: "og:description", content: "A little something for Gwala. Press play." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Gwala — A Dance" },
+      { name: "twitter:description", content: "A little something for Gwala. Press play." },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
